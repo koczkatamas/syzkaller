@@ -28,8 +28,8 @@ Create a config file with following lines adjusted for your environment:
 	"userspace": "/home/syzkaller/image/chroot",
 	"kernel_config": "/home/syzkaller/go/src/github.com/google/syzkaller/dashboard/config/linux/upstream-apparmor-kasan.config",
 	"kernel_baseline_config": "/home/syzkaller/go/src/github.com/google/syzkaller/dashboard/config/linux/upstream-apparmor-kasan-base.config",
-	"syzctl": /home/syzkaller/go/src/github.com/google/syzkaller/dashboard/config/linux/upstream.sysctl,
-	"cmdline": /home/syzkaller/go/src/github.com/google/syzkaller/dashboard/config/linux/upstream.cmdline,
+	"syzctl": "/home/syzkaller/go/src/github.com/google/syzkaller/dashboard/config/linux/upstream.sysctl",
+	"cmdline": "/home/syzkaller/go/src/github.com/google/syzkaller/dashboard/config/linux/upstream.cmdline",
 	"manager":
 	{
 		"name" : "bisect",
@@ -57,8 +57,8 @@ Create a config file with following lines adjusted for your environment:
 And run bisection with `bin/syz-bisect -config vm_bisect.cfg -crash
 /syzkaller/workdir/crashes/03ee30ae11dfd0ddd062af26566c34a8c853698d`.
 
-`Syz-bisect` is expecting finding repro.cprog or repro.prog in given
-crash directory. It will also utilize repro.opts, but it's not
+`syz-bisect` is expecting finding `repro.cprog` or `repro.prog` in given
+crash directory. It will also utilize `repro.opts`, but it's not
 mandatory.
 
 ## Additional Arguments
