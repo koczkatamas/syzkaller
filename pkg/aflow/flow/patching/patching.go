@@ -14,6 +14,7 @@ import (
 	"github.com/google/syzkaller/pkg/aflow/tool/codeeditor"
 	"github.com/google/syzkaller/pkg/aflow/tool/codeexpert"
 	"github.com/google/syzkaller/pkg/aflow/tool/codesearcher"
+	"github.com/google/syzkaller/pkg/aflow/tool/structlayout"
 )
 
 type Inputs struct {
@@ -41,7 +42,7 @@ type Outputs struct {
 }
 
 func init() {
-	commonTools := slices.Clip(append([]aflow.Tool{codeexpert.Tool}, codesearcher.Tools...))
+	commonTools := slices.Clip(append([]aflow.Tool{codeexpert.Tool}, append(codesearcher.Tools, structlayout.Tools...)...))
 
 	aflow.Register[Inputs, Outputs](
 		ai.WorkflowPatching,
@@ -54,6 +55,7 @@ func init() {
 				// Ensure we can reproduce the crash (and the build boots).
 				crash.Reproduce,
 				codesearcher.PrepareIndex,
+				structlayout.Prepare,
 				&aflow.LLMAgent{
 					Name:        "debugger",
 					Model:       aflow.BestExpensiveModel,
