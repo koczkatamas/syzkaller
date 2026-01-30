@@ -40,8 +40,8 @@ type testReproArgs struct {
 }
 
 type testReproResult struct {
-	Status string
-	Output string
+	Status string `jsonschema:"Result status of the test (e.g. 'CrashFound', 'NoCrash', 'KernelBuildFailed')"`
+	Output string `jsonschema:"Output of the execution, including filtered logs and crash report if found"`
 }
 
 func testRepro(ctx *aflow.Context, state testReproState, args testReproArgs) (testReproResult, error) {

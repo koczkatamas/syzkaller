@@ -42,6 +42,7 @@ type env struct {
 	optionalFlags bool
 	buildSem      *osutil.Semaphore
 	testSem       *osutil.Semaphore
+	debug         bool
 }
 
 type BuildKernelConfig struct {
@@ -56,7 +57,7 @@ type BuildKernelConfig struct {
 	BuildCPUs    int
 }
 
-func NewEnv(cfg *mgrconfig.Config, buildSem, testSem *osutil.Semaphore) (Env, error) {
+func NewEnv(cfg *mgrconfig.Config, buildSem, testSem *osutil.Semaphore, debug bool) (Env, error) {
 	if !vm.AllowsOvercommit(cfg.Type) {
 		return nil, fmt.Errorf("test instances are not supported for %v VMs", cfg.Type)
 	}
@@ -77,6 +78,7 @@ func NewEnv(cfg *mgrconfig.Config, buildSem, testSem *osutil.Semaphore) (Env, er
 		optionalFlags: true,
 		buildSem:      buildSem,
 		testSem:       testSem,
+		debug:         debug,
 	}
 	return env, nil
 }
@@ -270,7 +272,7 @@ func (env *env) Test(numVMs int, reproSyz, reproOpts, reproC []byte) ([]EnvTestR
 	if err != nil {
 		return nil, err
 	}
-	vmPool, err := vm.Create(env.cfg, false)
+	vmPool, err := vm.Create(env.cfg, env.debug)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create VM pool: %w", err)
 	}

@@ -593,7 +593,7 @@ func (jp *JobProcessor) ignoreBisectCommit(commit *vcs.Commit) bool {
 
 func (jp *JobProcessor) testPatch(job *Job, mgrcfg *mgrconfig.Config) error {
 	req, resp, mgr := job.req, job.resp, job.mgr
-	env, err := instance.NewEnv(mgrcfg, buildSem, testSem)
+	env, err := instance.NewEnv(mgrcfg, buildSem, testSem, false)
 	if err != nil {
 		return err
 	}

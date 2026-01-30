@@ -121,7 +121,7 @@ func main() {
 	if err != nil {
 		tool.Fail(err)
 	}
-	env, err := instance.NewEnv(cfg, nil, nil)
+	env, err := instance.NewEnv(cfg, nil, nil, false)
 	if err != nil {
 		tool.Fail(err)
 	}

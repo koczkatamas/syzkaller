@@ -147,7 +147,7 @@ func Run(cfg *Config) (*Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	inst, err := instance.NewEnv(cfg.Manager, cfg.BuildSemaphore, cfg.TestSemaphore)
+	inst, err := instance.NewEnv(cfg.Manager, cfg.BuildSemaphore, cfg.TestSemaphore, false)
 	if err != nil {
 		return nil, err
 	}
