@@ -11,7 +11,7 @@ if [ -z "$COMMIT" ]; then
     echo "Example: $0 cd8ae32e4e4652db55bce6b9c79267d8946765a9 ./bullseye.img"
     exit 1
 fi
-CONFIG_FILE="dashboard/config/linux/upstream-apparmor-kasan-base.config"
+CONFIG_FILE="dashboard/config/linux/upstream-apparmor-kasan.config"
 
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "Config file not found: $CONFIG_FILE"
@@ -36,7 +36,8 @@ try:
         'VM': {
             'count': 1,
             'cpu': 2,
-            'mem': 4096
+            'mem': 4096,
+            'cmdline': 'root=/dev/sda1'
         },
         'KernelConfig': config,
         'SyzkallerCommit': 'master',
