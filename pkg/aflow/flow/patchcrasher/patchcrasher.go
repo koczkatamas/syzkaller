@@ -93,6 +93,8 @@ Workflow:
    - Use 'codeeditor' to insert debug prints (printk) into the kernel code to trace the execution flow and verify conditions.
    - Use 'test_repro' to run a C program that attempts to trigger these paths.
    - MANDATORY: The C code MUST contain detailed comments explaining each step, what it does, and why it's required to reach the vulnerable code path.
+   - MANDATORY: The C code MUST print "PATCHCRASHER" in its output to be visible.
+   - MANDATORY: Do NOT create infinite loops that do not report progress. Set a global timeout (e.g. alarm(60)) to ensure the reproducer finishes within 1 minute.
    - IMPORTANT: To save time, batch multiple verification steps or questions into a single 'test_repro' run if possible.
      For example, write a C program that tries multiple syscall variants or arguments, and check the debug output to see which one reached the target code.
 5. Tracking execution flow:

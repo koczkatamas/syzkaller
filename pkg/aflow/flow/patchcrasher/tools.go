@@ -73,7 +73,7 @@ func runReproInternal(ctx *aflow.Context, state testReproState, reproC, reproSyz
 	}
 
 	// 1. Write the repro file (for debugging/artifacts)
-	file := filepath.Join(state.KernelScratchSrc, fileName)
+	file := filepath.Join(ctx.Workdir, fileName)
 	content := reproC
 	if reproSyz != "" {
 		content = reproSyz
@@ -152,7 +152,7 @@ func runReproInternal(ctx *aflow.Context, state testReproState, reproC, reproSyz
 	}
 
 	// Write status to file for flow control
-	statusFile := filepath.Join(state.KernelScratchSrc, "repro_status.txt")
+	statusFile := filepath.Join(ctx.Workdir, "repro_status.txt")
 	_ = osutil.WriteFile(statusFile, []byte(status))
 
 	return testReproResult{

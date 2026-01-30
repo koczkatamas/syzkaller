@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/google/syzkaller/pkg/aflow"
 	"github.com/google/syzkaller/pkg/build"
@@ -74,6 +75,10 @@ func ReproduceCrash(args ReproduceArgs, workdir string) (*report.Report, string,
 	if err := mgrconfig.Complete(cfg); err != nil {
 		return nil, "", nil, err
 	}
+	// Enforce 1 minute timeout for reproducers as requested.
+	cfg.Timeouts.NoOutput = time.Minute
+	cfg.Timeouts.NoOutputRunningTime = time.Minute
+
 	// User can enable VM debug mode via SYZ_VM_DEBUG environment variable.
 	debug := os.Getenv("SYZ_VM_DEBUG") != ""
 	env, err := instance.NewEnv(cfg, nil, nil, debug)

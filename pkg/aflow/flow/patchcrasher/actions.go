@@ -125,7 +125,7 @@ var checkStatus = aflow.NewFuncAction("check-status", func(ctx *aflow.Context, a
 	}
 	res.NeedRetry = "yes" // Default to retrying
 
-	statusFile := filepath.Join(args.KernelScratchSrc, "repro_status.txt")
+	statusFile := filepath.Join(ctx.Workdir, "repro_status.txt")
 	statusBytes, err := os.ReadFile(statusFile)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -139,7 +139,7 @@ var checkStatus = aflow.NewFuncAction("check-status", func(ctx *aflow.Context, a
 	if status == "CrashFound" {
 		res.NeedRetry = ""
 
-		reproFile := filepath.Join(args.KernelScratchSrc, "repro.c")
+		reproFile := filepath.Join(ctx.Workdir, "repro.c")
 		if reproBytes, err := os.ReadFile(reproFile); err == nil {
 			res.CRepro = string(reproBytes)
 		}
