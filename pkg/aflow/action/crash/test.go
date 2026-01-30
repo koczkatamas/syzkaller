@@ -90,7 +90,7 @@ func testPatch(ctx *aflow.Context, args testArgs) (testResult, error) {
 			KernelCommit:    args.KernelCommit,
 			KernelConfig:    args.KernelConfig,
 		}
-		rep, reportLog, err := ReproduceCrash(reproduceArgs, workdir)
+		rep, reportLog, _, err := ReproduceCrash(reproduceArgs, workdir)
 		if rep != nil {
 			res.TestError = string(rep.Report)
 		} else {

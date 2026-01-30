@@ -72,7 +72,7 @@ func checkout(ctx *aflow.Context, args checkoutArgs) (checkoutResult, error) {
 					}
 				}
 			}
-			return shallowGitClone(dir, kernelRepoDir)
+			return ShallowGitClone(dir, kernelRepoDir)
 		})
 		res.KernelSrc = dir
 		return err
@@ -85,13 +85,13 @@ func checkoutScratch(ctx *aflow.Context, args checkoutScratchArgs) (checkoutScra
 	if err != nil {
 		return checkoutScratchResult{}, err
 	}
-	if err := shallowGitClone(dir, args.KernelSrc); err != nil {
+	if err := ShallowGitClone(dir, args.KernelSrc); err != nil {
 		return checkoutScratchResult{}, err
 	}
 	return checkoutScratchResult{dir}, nil
 }
 
-func shallowGitClone(dir, remoteDir string) error {
+func ShallowGitClone(dir, remoteDir string) error {
 	if _, err := osutil.RunCmd(time.Hour, dir, "git", "init"); err != nil {
 		return err
 	}

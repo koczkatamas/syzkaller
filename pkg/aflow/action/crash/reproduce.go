@@ -44,19 +44,19 @@ type reproduceResult struct {
 	CrashReport string
 }
 
-func ReproduceCrash(args ReproduceArgs, workdir string) (*report.Report, string, error) {
+func ReproduceCrash(args ReproduceArgs, workdir string) (*report.Report, string, []byte, error) {
 	if args.Type != "qemu" {
-		return nil, "", errors.New("only qemu VM type is supported")
+		return nil, "", nil, errors.New("only qemu VM type is supported")
 	}
 
 	var vmConfig map[string]any
 	if err := json.Unmarshal(args.VM, &vmConfig); err != nil {
-		return nil, "", fmt.Errorf("failed to parse VM config: %w", err)
+		return nil, "", nil, fmt.Errorf("failed to parse VM config: %w", err)
 	}
 	vmConfig["kernel"] = filepath.Join(args.KernelObj, filepath.FromSlash(build.LinuxKernelImage(targets.AMD64)))
 	vmCfg, err := json.Marshal(vmConfig)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to serialize VM config: %w", err)
+		return nil, "", nil, fmt.Errorf("failed to serialize VM config: %w", err)
 	}
 
 	cfg := mgrconfig.DefaultValues()
@@ -69,27 +69,27 @@ func ReproduceCrash(args ReproduceArgs, workdir string) (*report.Report, string,
 	cfg.Type = args.Type
 	cfg.VM = vmCfg
 	if err := mgrconfig.SetTargets(cfg); err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 	if err := mgrconfig.Complete(cfg); err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 	env, err := instance.NewEnv(cfg, nil, nil)
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 	results, err := env.Test(1, nil, nil, []byte(args.ReproC))
 	if err != nil {
-		return nil, "", err
+		return nil, "", nil, err
 	}
 	if results[0].Error != nil {
 		if crashErr := new(instance.CrashError); errors.As(results[0].Error, &crashErr) {
-			return crashErr.Report, "", nil
+			return crashErr.Report, "", results[0].RawOutput, nil
 		} else {
-			return nil, results[0].Error.Error(), nil
+			return nil, results[0].Error.Error(), results[0].RawOutput, nil
 		}
 	}
-	return nil, "", nil
+	return nil, "", results[0].RawOutput, nil
 }
 
 func reproduce(ctx *aflow.Context, args ReproduceArgs) (reproduceResult, error) {
@@ -112,7 +112,7 @@ func reproduce(ctx *aflow.Context, args ReproduceArgs) (reproduceResult, error) 
 		if err != nil {
 			return res, err
 		}
-		rep, buildError, err := ReproduceCrash(args, workdir)
+		rep, buildError, _, err := ReproduceCrash(args, workdir)
 		if rep != nil {
 			res.BugTitle = rep.Title
 			res.Report = string(rep.Report)
