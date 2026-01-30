@@ -80,7 +80,7 @@ func ReproduceCrash(args ReproduceArgs, workdir string) (*report.Report, string,
 	if err != nil {
 		return nil, "", nil, err
 	}
-	results, err := env.Test(1, nil, nil, []byte(args.ReproC))
+	results, err := env.Test(1, []byte(args.ReproSyz), []byte(args.ReproOpts), []byte(args.ReproC))
 	if err != nil {
 		return nil, "", nil, err
 	}

@@ -58,6 +58,7 @@ func createFlow(name string, summaryWindow int) *aflow.Flow {
 							codeexpert.Tool,
 							codeeditor.Tool,
 							testReproTool,
+							testSyzReproTool,
 						}, codesearcher.Tools...)),
 						SummaryWindow: summaryWindow,
 					},
@@ -87,16 +88,27 @@ You are working on the *parent* commit of the patch (unpatched version).
 Workflow:
 1. Analyze the Patch Info to understand the vulnerability.
 2. Use 'codesearcher' to explore the relevant kernel code.
-3. Write/Test a C reproducer using 'test_repro'.
-   - This tool compiles your code, builds the kernel (if needed), and runs it in a VM.
-   - It returns the execution output.
-4. IMPORTANT: The tool by default returns filtered output (lines containing "PATCHCRASHER" and crash reports).
-   - You MUST include the string "PATCHCRASHER" in any printk/pr_err messages you add via 'codeeditor' or your C code (printf) if you want to see them.
+3. Establish a theory of how to trigger the bug.
+4. Verify your theory and debug the kernel behavior:
+   - Use 'codeeditor' to insert debug prints (printk) into the kernel code to trace the execution flow and verify conditions.
+   - Use 'test_repro' to run a C program that attempts to trigger these paths.
+   - MANDATORY: The C code MUST contain detailed comments explaining each step, what it does, and why it's required to reach the vulnerable code path.
+   - IMPORTANT: To save time, batch multiple verification steps or questions into a single 'test_repro' run if possible.
+     For example, write a C program that tries multiple syscall variants or arguments, and check the debug output to see which one reached the target code.
+5. Tracking execution flow:
+   - Use debug lines to confirm if you can reach the vulnerable function from user-space.
+   - If not, use the debug output to understand where the execution stops or diverges.
+6. The 'test_repro' tool filters output:
+   - You MUST include the string "PATCHCRASHER" in any printk messages you add via 'codeeditor' or printf in C code.
    - Example: pr_err("PATCHCRASHER: value is %d\n", val);
-5. Iterate:
-   - If the reproducer crashes the kernel (Status: CrashFound), you succeed.
-   - If 'Status: NoCrash', analyze the output and refine your reproducer.
-   - Use 'codeeditor' to add more tracing if needed.
+7. Iterate:
+   - If 'Status: NoCrash', analyze the "PATCHCRASHER" debug output. Refine your theory and the reproducer.
+   - If 'Status: CrashFound', you succeed.
+8. Final Step:
+   - Once you have a working C reproducer that crashes the kernel:
+   - Create a Syzkaller program (syz-lang) that triggers the same bug.
+   - Use 'test_syz_repro' to verify it.
+   - If the syz-lang program fails, analyze the executor logs to fix descriptions.
 `
 
 const reproPrompt = `

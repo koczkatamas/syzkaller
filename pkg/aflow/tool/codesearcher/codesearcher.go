@@ -17,11 +17,11 @@ var Tools = []aflow.Tool{
 	aflow.NewFuncTool("codesearch-dir-index", dirIndex, `
 Tool provides list of source files and subdirectories in the given directory in the source tree.
 `),
-	aflow.NewFuncTool("read-file", readFile, `
-Tool provides full contents of a single source file as is. Avoid using this tool if there are better
-and more specialized tools for the job, because source files may be large and contain lots
-of unrelated information.
-`),
+	// 	aflow.NewFuncTool("read-file", readFile, `
+	// Tool provides full contents of a single source file as is. Avoid using this tool if there are better
+	// and more specialized tools for the job, because source files may be large and contain lots
+	// of unrelated information.
+	// `),
 	aflow.NewFuncTool("codesearch-file-index", fileIndex, `
 Tool provides list of entities defined in the given source file.
 Entity can be function, struct, or global variable.
