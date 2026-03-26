@@ -17,7 +17,7 @@ import (
 
 var testReproTool = aflow.NewFuncTool("test_repro", testRepro, `
 Compile the C reproducer code, build the kernel (if needed), run the reproducer in the VM, and return the execution result.
-Ensure you include "PATCHCRASHER" in any printed output you want to see.
+The output will contain everything printed after the execution command is sent to the VM.
 `)
 var writeReproTool = testReproTool // Keeping the old name might be confusing, but I'll update the usage.
 
@@ -125,11 +125,20 @@ func runReproInternal(ctx *aflow.Context, state testReproState, reproC, reproSyz
 	// 4. Filter Output
 	var filteredOutput []string
 	lines := strings.Split(string(rawOutput), "\n")
+	startPrinting := false
 	for _, line := range lines {
-		// Include PATCHCRASHER logs and typical syz-executor output which might indicate missing descriptions
-		if strings.Contains(line, "PATCHCRASHER") || strings.Contains(line, "syz-executor") || strings.Contains(line, "executor") {
-			filteredOutput = append(filteredOutput, line)
+		if !startPrinting {
+			// Skip until we see the "Sending command: " line
+			if strings.Contains(line, "Sending command: ") {
+				startPrinting = true
+			}
+			continue
 		}
+		// Skip debug1: lines
+		if strings.HasPrefix(line, "debug1:") {
+			continue
+		}
+		filteredOutput = append(filteredOutput, line)
 	}
 
 	status := "NoCrash"

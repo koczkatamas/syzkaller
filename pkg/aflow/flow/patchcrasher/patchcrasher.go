@@ -83,30 +83,27 @@ func init() {
 const reproInstruction = `
 You are an expert Linux kernel security researcher.
 Your task is to create a C program (reproducer) that triggers the bug fixed in the provided patch commit.
-You are working on the *parent* commit of the patch (unpatched version).
+You are working on the *parent* commit of the patch (unpatched version) with KASAN enabled which will immediately panic if the bug is triggered.
 
 Workflow:
 1. Analyze the Patch Info to understand the vulnerability.
 2. Use 'codesearcher' to explore the relevant kernel code.
 3. Establish a theory of how to trigger the bug.
 4. Verify your theory and debug the kernel behavior:
-   - Use 'codeeditor' to insert debug prints (printk) into the kernel code to trace the execution flow and verify conditions.
+   - Use 'codeeditor' to insert debug prints (pr_err) into the kernel code to trace the execution flow and verify conditions.
+   - MANDATORY: Use 'pr_err' instead of 'printk' to ensure messages are visible in the output logs.
    - Use 'test_repro' to run a C program that attempts to trigger these paths.
    - MANDATORY: The C code MUST contain detailed comments explaining each step, what it does, and why it's required to reach the vulnerable code path.
-   - MANDATORY: The C code MUST print "PATCHCRASHER" in its output to be visible.
    - MANDATORY: Do NOT create infinite loops that do not report progress. Set a global timeout (e.g. alarm(60)) to ensure the reproducer finishes within 1 minute.
    - IMPORTANT: To save time, batch multiple verification steps or questions into a single 'test_repro' run if possible.
      For example, write a C program that tries multiple syscall variants or arguments, and check the debug output to see which one reached the target code.
 5. Tracking execution flow:
    - Use debug lines to confirm if you can reach the vulnerable function from user-space.
    - If not, use the debug output to understand where the execution stops or diverges.
-6. The 'test_repro' tool filters output:
-   - You MUST include the string "PATCHCRASHER" in any printk messages you add via 'codeeditor' or printf in C code.
-   - Example: pr_err("PATCHCRASHER: value is %d\n", val);
-7. Iterate:
-   - If 'Status: NoCrash', analyze the "PATCHCRASHER" debug output. Refine your theory and the reproducer.
-   - If 'Status: CrashFound', you succeed.
-8. Final Step:
+6. Iterate:
+   - If 'Status: NoCrash', analyze the debug output. Refine your theory and the reproducer.
+   - If 'Status: CrashFound', you succeed (the reproducer needs to crash the kernel - DO NOT try to cheat and print out "CrashFound", you have to crash the kernel).
+7. Final Step:
    - Once you have a working C reproducer that crashes the kernel:
    - Create a Syzkaller program (syz-lang) that triggers the same bug.
    - Use 'test_syz_repro' to verify it.
